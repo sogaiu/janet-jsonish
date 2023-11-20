@@ -33,11 +33,11 @@
             (band 2r11_1111_1111 low))))
   (buffer/push buf
                (bor 2r1111_0000
-                    (brshift (band 2r1_1100_0000_0000_0000_0000 cp) 18))
+                    (band 2r111 (brshift cp 18)))
                (bor 2r1000_0000
-                    (brshift (band 2r11_1111_0000_0000_0000 cp) 12))
+                    (band 2r11_1111 (brshift cp 12)))
                (bor 2r1000_0000
-                    (brshift (band 2r1111_1100_0000 cp) 6))
+                    (band 2r11_1111 (brshift cp 6)))
                (bor 2r1000_0000
                     (band 2r11_1111 cp)))
   #
@@ -63,16 +63,16 @@
     (<= bmp-cp 0x7ff)
     (buffer/push buf
                  (bor 2r1100_0000
-                      (brshift (band 2r111_1100_0000 bmp-cp) 6))
+                      (band 2r1_1111 (brshift bmp-cp 6)))
                  (bor 2r1000_0000
                       (band 2r11_1111 bmp-cp)))
     #
     (<= bmp-cp 0xffff)
     (buffer/push buf
                  (bor 2r1110_0000
-                      (brshift (band 2r1111_0000_0000_0000 bmp-cp) 12))
+                      (band 2r1111 (brshift bmp-cp 12)))
                  (bor 2r1000_0000
-                      (brshift (band 2r1111_1100_0000 bmp-cp) 6))
+                      (band 2r11_1111 (brshift bmp-cp 6)))
                  (bor 2r1000_0000
                       (band 2r11_1111 bmp-cp)))
     #
