@@ -7,41 +7,15 @@
   * encode: JDN -> buffer of JSON content
   ``)
 
-# U' = yyyyyyyyyyxxxxxxxxxx  // U - 0x10000
-# W1 = 110110yyyyyyyyyy      // 0xD800 + yyyyyyyyyy
-# W2 = 110111xxxxxxxxxx      // 0xDC00 + xxxxxxxxxx
+# a single unicode escape in a json string is of one of the following two
+# forms:
 #
-# (W1 - high surrogate)
-# (W2 - low surrogate)
-# (U is target code point, U' is offset from U)
+#   \uHHHH
+#   \uHHHH\uHHHH
 #
-# ...
-#
-# Since the ranges for the high surrogates (0xD800–0xDBFF), low
-# surrogates (0xDC00–0xDFFF), and valid BMP characters (0x0000–0xD7FF,
-# 0xE000–0xFFFF) are disjoint, it is not possible for a surrogate to
-# match a BMP character, or for two adjacent code units to look like a
-# legal surrogate pair.
-#
-# https://en.wikipedia.org/wiki/UTF-16
-(defn non-bmp-to-utf-16
-  [high low]
-  (def buf @"")
-  (def cp
-    (+ 0x10000
-       (bor (blshift (band 2r11_1111_1111 high) 10)
-            (band 2r11_1111_1111 low))))
-  (buffer/push buf
-               (bor 2r1111_0000
-                    (band 2r111 (brshift cp 18)))
-               (bor 2r1000_0000
-                    (band 2r11_1111 (brshift cp 12)))
-               (bor 2r1000_0000
-                    (band 2r11_1111 (brshift cp 6)))
-               (bor 2r1000_0000
-                    (band 2r11_1111 cp)))
-  #
-  buf)
+# the first form (\uHHHH) is for bmp code points and uses UTF-8.
+# the second form (\uHHHH\uHHHH) is for non-bmp code points and uses
+# UTF-16's surrogate pairs.
 
 # First code point  Last code point  Byte 1    Byte 2    Byte 3    Byte 4
 # ----------------  ---------------  ------    ------    ------    ------
@@ -77,6 +51,42 @@
                       (band 2r11_1111 bmp-cp)))
     #
     (errorf "code point out of range: %n" bmp-cp))
+  #
+  buf)
+
+# U' = yyyyyyyyyyxxxxxxxxxx  // U - 0x10000
+# W1 = 110110yyyyyyyyyy      // 0xD800 + yyyyyyyyyy
+# W2 = 110111xxxxxxxxxx      // 0xDC00 + xxxxxxxxxx
+#
+# (W1 - high surrogate)
+# (W2 - low surrogate)
+# (U is target code point, U' is offset from U)
+#
+# ...
+#
+# Since the ranges for the high surrogates (0xD800–0xDBFF), low
+# surrogates (0xDC00–0xDFFF), and valid BMP characters (0x0000–0xD7FF,
+# 0xE000–0xFFFF) are disjoint, it is not possible for a surrogate to
+# match a BMP character, or for two adjacent code units to look like a
+# legal surrogate pair.
+#
+# https://en.wikipedia.org/wiki/UTF-16
+(defn non-bmp-to-utf-16
+  [high low]
+  (def buf @"")
+  (def cp
+    (+ 0x10000
+       (bor (blshift (band 2r11_1111_1111 high) 10)
+            (band 2r11_1111_1111 low))))
+  (buffer/push buf
+               (bor 2r1111_0000
+                    (band 2r111 (brshift cp 18)))
+               (bor 2r1000_0000
+                    (band 2r11_1111 (brshift cp 12)))
+               (bor 2r1000_0000
+                    (band 2r11_1111 (brshift cp 6)))
+               (bor 2r1000_0000
+                    (band 2r11_1111 cp)))
   #
   buf)
 
