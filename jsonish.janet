@@ -7,14 +7,14 @@
   * encode: JDN -> buffer of JSON content
   ``)
 
-# a single unicode escape in a json string is of one of the following two
-# forms:
+# escaping a unicode code point in a json string takes one of the
+# following two forms:
 #
 #   \uHHHH
 #   \uHHHH\uHHHH
 #
-# the first form (\uHHHH) is for bmp code points.
-# the second form (\uHHHH\uHHHH) is for non-bmp code points and corresponds
+# the first form (\uHHHH) is for a bmp code point.
+# the second form (\uHHHH\uHHHH) is for a non-bmp code point and corresponds
 # to a UTF-16 surrogate pair.
 
 # First code point  Last code point  Byte 1    Byte 2    Byte 3    Byte 4
