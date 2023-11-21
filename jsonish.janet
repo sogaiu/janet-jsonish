@@ -13,9 +13,9 @@
 #   \uHHHH
 #   \uHHHH\uHHHH
 #
-# the first form (\uHHHH) is for bmp code points and uses UTF-8.
-# the second form (\uHHHH\uHHHH) is for non-bmp code points and uses
-# UTF-16's surrogate pairs.
+# the first form (\uHHHH) is for bmp code points.
+# the second form (\uHHHH\uHHHH) is for non-bmp code points and corresponds
+# to a UTF-16 surrogate pair.
 
 # First code point  Last code point  Byte 1    Byte 2    Byte 3    Byte 4
 # ----------------  ---------------  ------    ------    ------    ------
@@ -71,7 +71,7 @@
 # legal surrogate pair.
 #
 # https://en.wikipedia.org/wiki/UTF-16
-(defn non-bmp-to-utf-16
+(defn surr-pair-to-utf-8
   [high low]
   (def buf @"")
   (def cp
@@ -162,7 +162,7 @@
                         #(printf " non-bmp escape check $: %n" $0 $1)
                         (when (and (<= 0xd800 $0 0xdbff)
                                    (<= 0xdc00 $1 0xdfff))
-                          (non-bmp-to-utf-16 $0 $1))))
+                          (surr-pair-to-utf-8 $0 $1))))
                # bmp character done via utf-8 in json
                (cmt (sequence "u" (number 4 16))
                     ,|(do
