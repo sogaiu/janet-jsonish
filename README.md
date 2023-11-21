@@ -29,6 +29,20 @@ true
 @`{"result": null}`
 ```
 
+# Alternatives
+
+## C
+
+* [spork](https://github.com/janet-lang/spork/)
+
+## Pure Janet
+
+* [janet-json-pure](https://github.com/Techcable/janet-json-pure) -
+  if Unicode support is important, might want to look at source closely
+* [janet-pure-parsers](https://github.com/rlonstein/janet-pure-parsers) -
+  if Unicode support is important, might want to look at source closely
+* [jayson](https://github.com/CFiggers/jayson)
+
 # Credits
 
 * bakpakin - `spork/json` from [spork](https://github.com/janet-lang/spork/)
