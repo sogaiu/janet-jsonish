@@ -304,13 +304,15 @@
   (def byte-1 (get bytes i))
   (cond
     # 1-byte sequence
-    (<= byte-1 0x7f)
+    (<= byte-1 2r0111_1111)
     [byte-1 1]
-    # should not be used by leading byte in utf-8 sequence
-    (<= byte-1 0xbf)
+    # leading bytes should not be of the form 10xx_xxxx
+    (<= # 2r1000_0000
+        byte-1 2r1011_1111)
     (errorf "unexpected leading byte: %n at index: %d" byte-1 i)
-    # 2-byte sequence
-    (<= byte-1 0xd7)
+    # 2-byte sequence - starts with 110x_xxxx
+    (<= # 2r1100_0000
+        byte-1 2r1101_1111)
     (do
       (assert (< (+ i 1) n-bytes)
               (string/format "truncated 2-byte utf-8 seq at index: %d" i))
@@ -320,14 +322,20 @@
       [(+ (blshift (band 2r01_1111 byte-1) 6)
           (band 2r11_1111 byte-2))
        2])
-    # used by high surrogate pair
-    (<= byte-1 0xdb)
-    (errorf "unexpected leading byte: %n at index: %d" byte-1 i)
-    # used by low surrogate pair
-    (<= byte-1 0xdf)
-    (errorf "unexpected leading byte: %n at index: %d" byte-1 i)
-    # 3-byte sequence
-    (<= byte-1 0xef)
+    #
+    # if the surrogate pair ranges [0xd800, 0xdbff] and [0xdc00, 0xdfff]
+    # got turned into utf-8 byte sequences (which they shouldn't),
+    # they would occupy (see misc.janet):
+    #
+    #   [0xEDA080, 0xEDAFBF]
+    #   [0xEDAFC0, 0xEDBFBF]
+    #
+    # but there are "legit" things that use a leading byte of 0xED, so
+    # would need to examine later bytes to tell if there is an error...
+    #
+    # 3-byte sequence - starts with 1110_xxxx
+    (<= # 2r1110_0000
+        byte-1 2r1110_1111)
     (do
       (assert (< (+ i 2) n-bytes)
               (string/format "truncated 3-byte utf-8 seq near index: %d" i))
@@ -341,8 +349,9 @@
           (blshift (band 2r11_1111 byte-2) 6)
           (band 2r11_1111 byte-3))
        3])
-    # 4-byte sequence
-    (<= byte-1 0xf7)
+    # 4-byte sequence - starts with 1111_0xxx
+    (<= # 2r1111_0000
+        byte-1 2r1111_0111)
     (do
       (assert (< (+ i 3) n-bytes)
               (string/format "truncated 4-byte utf-8 seq near index: %d" i))
