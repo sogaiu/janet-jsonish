@@ -90,7 +90,6 @@
   #
   buf)
 
-# XXX: doesn't validate all byte sequences for utf-8 compliance
 (def grammar
   ~@{:main (some :input)
      #
@@ -128,18 +127,32 @@
                 $))
        # non-leading byte value in utf-8
        (if (range "\x80\xbf") (error (constant "unexpected byte")))
-       # XXX: not (yet?) checking following bytes here and below
-       (cmt (capture (sequence (range "\xc0\xd7") 1))
+       # byte 1: 110xxxxx -> 11000000 - 11010111 -> \xc0 - \xd7
+       # byte 2: 10xxxxxx -> 10000000 - 10111111 -> \x80 - \xbf
+       (cmt (capture (sequence (range "\xc0\xd7")
+                               (range "\x80\xbf")))
             ,|(do
                 #(printf " 2 bytes $: %n" $)
                 $))
        (if (range "\xd8\xdb") (error (constant "unexpected utf-16 (high)")))
        (if (range "\xdc\xdf") (error (constant "unexpected uft-16 (low)")))
-       (cmt (capture (sequence (range "\xe0\xef") 2))
+       # byte 1: 1110xxxx -> 11100000 - 11101111 -> \xe0 - \xef
+       # byte 2: 10xxxxxx -> 10000000 - 10111111 -> \x80 - \xbf
+       # byte 3: 10xxxxxx -> 10000000 - 10111111 -> \x80 - \xbf
+       (cmt (capture (sequence (range "\xe0\xef")
+                               (range "\x80\xbf")
+                               (range "\x80\xbf")))
             ,|(do
                 #(printf " 3 bytes $: %n" $)
                 $))
-       (cmt (capture (sequence (range "\xf0\xf7") 3))
+       # byte 1: 11110xxx -> 11110000 - 11110111 -> \xf0 - \xf7
+       # byte 2: 10xxxxxx -> 10000000 - 10111111 -> \x80 - \xbf
+       # byte 3: 10xxxxxx -> 10000000 - 10111111 -> \x80 - \xbf
+       # byte 4: 10xxxxxx -> 10000000 - 10111111 -> \x80 - \xbf
+       (cmt (capture (sequence (range "\xf0\xf7")
+                               (range "\x80\xbf")
+                               (range "\x80\xbf")
+                               (range "\x80\xbf")))
             ,|(do
                 #(printf " 4 bytes $: %n" $)
                 $))
