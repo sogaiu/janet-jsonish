@@ -42,6 +42,7 @@ true
 * [janet-pure-parsers](https://github.com/rlonstein/janet-pure-parsers) -
   if Unicode support is important, might want to look at source closely
 * [jayson](https://github.com/CFiggers/jayson)
+* [medea](https://github.com/pyrmont/medea)
 
 # Credits
 
