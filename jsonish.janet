@@ -187,11 +187,11 @@
                                      (choice :float :integer)))
                   ,|(scan-number $))
      #
-     :float (sequence (choice (sequence (opt :integer) "." :integer)
-                              (sequence :integer (opt ".")))
+     :float (sequence (choice (sequence :integer "." :d+)
+                              :integer)
                       (opt (sequence (set "eE")
                                      (opt (choice "+" "-"))
-                                     :integer)))
+                                     :d+)))
      #
      :integer (choice "0"
                       (sequence (range "19") :d*))
