@@ -184,17 +184,17 @@
                (error (constant "invalid escape"))))
      #
      :number (cmt (capture (sequence (opt "-")
-                                     (choice :float :integer)))
+                                     (choice "0"
+                                             (sequence (range "19") :d*))
+                                     (opt :fraction)
+                                     (opt :exponent)))
                   ,|(scan-number $))
      #
-     :float (sequence (choice (sequence :integer "." :d+)
-                              :integer)
-                      (opt (sequence (set "eE")
-                                     (opt (choice "+" "-"))
-                                     :d+)))
+     :fraction (sequence "." :d+)
      #
-     :integer (choice "0"
-                      (sequence (range "19") :d*))
+     :exponent (sequence (set "eE")
+                         (opt (choice "+" "-"))
+                         :d+)
      #
      :rest-char (range "$$" "09" "AZ" "__" "az" "\x80\xFF")
      # XXX: no nice error messages...
